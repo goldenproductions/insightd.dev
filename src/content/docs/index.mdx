@@ -1,0 +1,70 @@
+---
+title: insightd
+description: Self-hosted server awareness for homelabbers. Know what's happening across your servers — without the complexity of Grafana.
+template: splash
+hero:
+  tagline: Self-hosted server awareness for homelabbers. Monitor containers, hosts, and endpoints — without the complexity of Prometheus + Grafana.
+  actions:
+    - text: Get Started
+      link: /insightd.dev/guides/quick-start/
+      icon: right-arrow
+      variant: primary
+    - text: View on GitHub
+      link: https://github.com/goldenproductions/insightd
+      icon: external
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+## Why insightd?
+
+You run a homelab. You have containers everywhere. Something goes down at 2am and you don't know until morning. Grafana is overkill. Uptime Kuma only does HTTP checks. You want **one tool** that monitors everything and tells you what matters.
+
+<CardGrid>
+  <Card title="Container Monitoring" icon="laptop">
+    CPU, memory, restarts, network I/O, health checks — for every container across every host.
+  </Card>
+  <Card title="Host System Metrics" icon="setting">
+    CPU, memory, load average, uptime, disk usage with "days until full" forecasts.
+  </Card>
+  <Card title="Endpoint Uptime" icon="approve-check-circle">
+    Monitor HTTP endpoints for uptime and response time. Alert when they go down.
+  </Card>
+  <Card title="Smart Alerts" icon="warning">
+    10 alert types with cooldown, resolution emails, and webhook notifications to Slack, Discord, Telegram, or ntfy.
+  </Card>
+  <Card title="Weekly Digest" icon="document">
+    HTML email every week with uptime trends, resource changes, disk warnings, and endpoint status.
+  </Card>
+  <Card title="Modern Web UI" icon="star">
+    React + TypeScript dashboard with dark/light theme, response time charts, log viewer with regex search and JSON formatting.
+  </Card>
+</CardGrid>
+
+## Quick Start
+
+```bash
+# Single server (standalone mode)
+docker run -d \
+  --name insightd \
+  --restart unless-stopped \
+  -v /var/run/docker.sock:/var/run/docker.sock:ro \
+  -v /:/host:ro \
+  -v insightd-data:/data \
+  -p 3000:3000 \
+  andreas404/insightd-hub:0.1.0
+```
+
+Open `http://your-server:3000` and you're monitoring.
+
+## Multi-Server Setup
+
+```
+[Agent on each host] → MQTT (Mosquitto) → [Hub] → SQLite → Web UI + Email + Webhooks
+```
+
+Deploy a Mosquitto broker + hub on one server, then add lightweight agents on each host. See the [Docker Compose guide](/insightd.dev/guides/docker-compose/) for the full setup.
+
+## Free & Open Source
+
+insightd is MIT licensed and free for any number of servers. No cloud dependency, no telemetry, no signup. Your data stays on your hardware.
