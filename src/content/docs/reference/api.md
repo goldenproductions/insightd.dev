@@ -80,11 +80,27 @@ Summary stats: host counts, container counts, active alerts, disk warnings, upda
 
 Top CPU and memory consumers. Query: `?limit=5` (1-50).
 
+## Container Actions
+
+### `POST /api/hosts/:hostId/containers/:containerName/action` (Auth)
+
+Perform a container action. Body: `{"action": "start|stop|restart"}`.
+
+Requires `INSIGHTD_ALLOW_ACTIONS=true` on the agent.
+
+### `DELETE /api/hosts/:hostId/containers/:containerName` (Auth)
+
+Remove a container from Docker (if it exists) and clean all insightd data (snapshots, alerts, baselines, health scores, service group memberships). Works for containers that were already manually removed.
+
+### `DELETE /api/hosts/:hostId` (Auth)
+
+Remove a host and all its data.
+
 ## Alerts
 
 ### `GET /api/alerts`
 
-All alerts. Query: `?active=false` to include resolved alerts (default shows active only).
+All alerts with context (message, trigger value, threshold). Query: `?active=false` to include resolved alerts (default shows active only).
 
 ## HTTP Endpoints
 
@@ -153,6 +169,24 @@ All settings grouped by category, with current values and sources.
 ### `PUT /api/settings` (Auth)
 
 Update settings. Body: `{"key": "value", ...}`.
+
+## Insights & Baselines
+
+### `GET /api/baselines/:entityType/:entityId`
+
+Baselines (p50/p75/p90/p95/p99) for a host or container. Entity types: `host`, `container`. Container entity IDs use format `hostId/containerName` (URL-encode the slash).
+
+### `GET /api/health-scores`
+
+All health scores with per-factor breakdowns (CPU, Memory, Load, Online, Alerts scores and ratings).
+
+### `GET /api/health-scores/:entityType/:entityId`
+
+Health score for a specific entity.
+
+### `GET /api/insights`
+
+Latest anomaly insights (performance issues, predictions, correlations).
 
 ## Agent Setup
 

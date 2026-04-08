@@ -10,11 +10,14 @@ insightd is a self-hosted server awareness tool designed for homelabbers. It fil
 With insightd you get:
 
 - **Container monitoring** across multiple hosts — status, CPU, RAM, restarts, network I/O, health checks
-- **Host system metrics** — CPU, memory, load average, uptime, disk usage
+- **Host system metrics** — CPU, memory, load average, uptime, disk usage, GPU, temperature
 - **HTTP endpoint monitoring** — uptime, response time, alerting
-- **Smart alerts** via email + webhooks (Slack, Discord, Telegram, ntfy)
+- **Explainable alerts** — every alert stores why it fired (value + threshold), with email and webhook delivery (Slack, Discord, Telegram, ntfy)
+- **Metric personalities** — baseline-aware human-friendly moods on every metric (e.g. "😌 Normal", "🔥 Way above normal")
+- **Health score breakdown** — click to see per-host factor analysis explaining your system health
+- **Container actions** — start, stop, restart, and remove containers from the UI
 - **Weekly digest emails** summarizing what happened
-- **Modern web dashboard** with dark/light theme
+- **Modern web dashboard** — setup wizard configures everything from the UI, no `.env` file required
 
 ## Who is it for?
 

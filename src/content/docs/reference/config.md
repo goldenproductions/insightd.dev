@@ -3,7 +3,11 @@ title: Configuration Reference
 description: All environment variables for insightd hub and agent
 ---
 
-All configuration is done via environment variables. Most settings can also be changed at runtime from the **Settings** page in the web UI.
+All configuration can be done from the **Setup Wizard** and **Settings** page in the web UI — no `.env` file required. Environment variables are also supported and take effect as defaults (UI settings override them).
+
+:::tip
+SMTP, alerts, and most settings are **hot-reloadable** — changes take effect immediately without restarting the container.
+:::
 
 ## SMTP / Email
 
@@ -61,6 +65,20 @@ All configuration is done via environment variables. Most settings can also be c
 | `INSIGHTD_MQTT_USER` | _(none)_ | MQTT username |
 | `INSIGHTD_MQTT_PASS` | _(none)_ | MQTT password |
 | `INSIGHTD_HOST_ID` | `local` | Host identifier |
+
+## Container Actions
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `INSIGHTD_ALLOW_ACTIONS` | `false` | Enable start/stop/restart/remove from the UI |
+| `INSIGHTD_ALLOW_UPDATES` | `false` | Enable remote agent updates from the hub |
+
+## Status Page
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `INSIGHTD_STATUS_PAGE` | `false` | Enable public status page at `/status` |
+| `INSIGHTD_STATUS_PAGE_TITLE` | `System Status` | Title shown on the public status page |
 
 ## Collection
 

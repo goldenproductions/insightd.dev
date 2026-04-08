@@ -30,14 +30,14 @@ You run a homelab. You have containers everywhere. Something goes down at 2am an
   <Card title="Endpoint Uptime" icon="approve-check-circle">
     Monitor HTTP endpoints for uptime and response time. Alert when they go down.
   </Card>
-  <Card title="Smart Alerts" icon="warning">
-    10 alert types with cooldown, resolution emails, and webhook notifications to Slack, Discord, Telegram, or ntfy.
+  <Card title="Explainable Alerts" icon="warning">
+    10 alert types with cooldown, resolution, and webhooks. Every alert tells you **why** it fired — the value, the threshold, and the full context.
   </Card>
-  <Card title="Weekly Digest" icon="document">
-    HTML email every week with uptime trends, resource changes, disk warnings, and endpoint status.
+  <Card title="Metric Personalities" icon="star">
+    Baseline-aware moods on every metric. Your server isn't just "at 80% CPU" — it's "😌 Normal" because that's typical for this container.
   </Card>
   <Card title="Modern Web UI" icon="star">
-    React + TypeScript dashboard with dark/light theme, response time charts, log viewer with regex search and JSON formatting.
+    React dashboard with dark/light theme, clickable health score breakdowns, container actions, and a setup wizard — no .env file needed.
   </Card>
 </CardGrid>
 
@@ -52,7 +52,7 @@ docker run -d \
   -v /:/host:ro \
   -v insightd-data:/data \
   -p 3000:3000 \
-  andreas404/insightd-hub:0.1.0
+  andreas404/insightd-hub:latest
 ```
 
 Open `http://your-server:3000` and you're monitoring.

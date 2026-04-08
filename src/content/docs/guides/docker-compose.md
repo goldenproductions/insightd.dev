@@ -73,7 +73,7 @@ services:
       - "1883:1883"
 
   hub:
-    image: andreas404/insightd-hub:0.1.0
+    image: andreas404/insightd-hub:latest
     container_name: insightd-hub
     restart: unless-stopped
     depends_on:
@@ -88,7 +88,7 @@ services:
       INSIGHTD_MQTT_URL: mqtt://mosquitto:1883
 
   agent:
-    image: andreas404/insightd-agent:0.1.0
+    image: andreas404/insightd-agent:latest
     container_name: insightd-agent
     restart: unless-stopped
     depends_on:
@@ -101,6 +101,8 @@ services:
       INSIGHTD_MQTT_URL: mqtt://mosquitto:1883
       INSIGHTD_MQTT_USER: ${INSIGHTD_MQTT_USER}
       INSIGHTD_MQTT_PASS: ${INSIGHTD_MQTT_PASS}
+      INSIGHTD_ALLOW_UPDATES: "true"
+      INSIGHTD_ALLOW_ACTIONS: "true"
 
 volumes:
   mosquitto-data:
@@ -125,11 +127,11 @@ docker run -d \
   -e INSIGHTD_MQTT_URL=mqtt://hub-server-ip:1883 \
   -e INSIGHTD_MQTT_USER=insightd \
   -e INSIGHTD_MQTT_PASS=your-mqtt-password \
-  andreas404/insightd-agent:0.1.0
+  andreas404/insightd-agent:latest
 ```
 
 :::tip
-You can also generate this command from the web UI: go to **Add Agent** in the sidebar and fill in the fields.
+You can generate this command from the web UI: go to **Add Agent** in the sidebar. All 15 agent environment variables are configurable there, including collection interval, timezone, disk thresholds, and log limits.
 :::
 
 ## Verify

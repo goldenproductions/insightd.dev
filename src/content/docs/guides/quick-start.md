@@ -15,22 +15,22 @@ docker run -d \
   -v /:/host:ro \
   -v insightd-data:/data \
   -p 3000:3000 \
-  -e INSIGHTD_ADMIN_PASSWORD=your-password \
-  andreas404/insightd-hub:0.1.0
+  andreas404/insightd-hub:latest
 ```
 
-Open **http://your-server:3000** in your browser.
+Open **http://your-server:3000** and follow the **Setup Wizard** — it walks you through setting a password, configuring email, and adding agents. No `.env` file needed.
 
 ## What You'll See
 
-- **Dashboard** — host/container counts, active alerts, top resource consumers
-- **Hosts** — click into any host to see containers, uptime timeline, trends, disk usage
-- **Containers** — CPU/memory charts, log viewer, alert history
+- **Dashboard** — health score (click for per-host breakdown), availability, "Needs Attention" feed with metric personalities
+- **Hosts** — click into any host to see containers with baseline-aware mood indicators, uptime timeline, trends
+- **Containers** — CPU/memory gauges with moods, log viewer, alert history with full context
+- **Alerts** — every alert shows **why** it fired (value, threshold, message)
 - **Endpoints** — add HTTP URLs to monitor (requires login)
 
 ## Enable Email Alerts
 
-Add SMTP configuration to get alert emails and weekly digests:
+You can configure email entirely from the **Settings** page in the UI — no restart required. Or use environment variables:
 
 ```bash
 docker run -d \
@@ -40,19 +40,17 @@ docker run -d \
   -v /:/host:ro \
   -v insightd-data:/data \
   -p 3000:3000 \
-  -e INSIGHTD_ADMIN_PASSWORD=your-password \
   -e INSIGHTD_SMTP_HOST=smtp.gmail.com \
   -e INSIGHTD_SMTP_PORT=587 \
   -e INSIGHTD_SMTP_USER=you@gmail.com \
   -e INSIGHTD_SMTP_PASS=your-app-password \
-  -e INSIGHTD_SMTP_FROM=you@gmail.com \
   -e INSIGHTD_DIGEST_TO=you@gmail.com \
   -e INSIGHTD_ALERTS_ENABLED=true \
-  andreas404/insightd-hub:0.1.0
+  andreas404/insightd-hub:latest
 ```
 
 :::tip
-For Gmail, use an [App Password](https://myaccount.google.com/apppasswords) — not your regular password.
+For Gmail, use an [App Password](https://myaccount.google.com/apppasswords) — not your regular password. Or configure SMTP from the Settings page after setup.
 :::
 
 ## Enable Webhook Notifications
