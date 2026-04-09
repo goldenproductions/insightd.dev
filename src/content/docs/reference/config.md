@@ -56,6 +56,7 @@ SMTP, alerts, and most settings are **hot-reloadable** — changes take effect i
 | `INSIGHTD_WEB_HOST` | `0.0.0.0` | Bind address |
 | `INSIGHTD_ADMIN_PASSWORD` | _(none)_ | Admin password for settings/webhooks |
 | `INSIGHTD_EXTERNAL_HOST` | _(auto)_ | Hostname shown in agent setup commands |
+| `INSIGHTD_STATUS_PAGE` | `false` | Enable public status page at `/status` (no auth) |
 
 ## MQTT (Hub Mode)
 
@@ -64,7 +65,23 @@ SMTP, alerts, and most settings are **hot-reloadable** — changes take effect i
 | `INSIGHTD_MQTT_URL` | _(none)_ | MQTT broker URL (enables hub mode) |
 | `INSIGHTD_MQTT_USER` | _(none)_ | MQTT username |
 | `INSIGHTD_MQTT_PASS` | _(none)_ | MQTT password |
-| `INSIGHTD_HOST_ID` | `local` | Host identifier |
+| `INSIGHTD_HOST_ID` | `local` | Host identifier (falls back to `NODE_NAME` in k8s mode) |
+
+## Container Runtime
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `INSIGHTD_RUNTIME` | `auto` | Container runtime: `auto`, `docker`, or `kubernetes` |
+| `INSIGHTD_ALLOW_ACTIONS` | `false` | Enable container start/stop/restart from UI (Docker only) |
+| `INSIGHTD_ALLOW_UPDATES` | `false` | Enable remote agent self-updates (Docker only) |
+
+## Kubernetes (DaemonSet Mode)
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `NODE_NAME` | _(none)_ | Required — node name (set via downward API in DaemonSet) |
+| `NODE_IP` | _(none)_ | Node IP, used to build kubelet URL (set via downward API) |
+| `INSIGHTD_KUBELET_URL` | `https://${NODE_IP}:10250` | Override the kubelet endpoint URL |
 
 ## Container Actions
 

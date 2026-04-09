@@ -21,13 +21,16 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
 You run a homelab. You have containers everywhere. Something goes down at 2am and you don't know until morning. Grafana is overkill. Uptime Kuma only does HTTP checks. You want **one tool** that monitors everything and tells you what matters.
 
 <CardGrid>
-  <Card title="Container Monitoring" icon="laptop">
+  <Card title="Multi-Runtime" icon="laptop">
+    Monitor Docker, Kubernetes, and k3s from a single hub. Deploy as a DaemonSet in k8s or as a standalone container with Docker.
+  </Card>
+  <Card title="Container Monitoring" icon="setting">
     CPU, memory, restarts, network I/O, health checks — for every container across every host.
   </Card>
-  <Card title="Host System Metrics" icon="setting">
-    CPU, memory, load average, uptime, disk usage with "days until full" forecasts.
+  <Card title="Smart Insights" icon="approve-check-circle">
+    Capacity-based health scoring (no false positives from low-baseline noise). Predictions, trends, and anomalies — with thumbs up/down feedback.
   </Card>
-  <Card title="Endpoint Uptime" icon="approve-check-circle">
+  <Card title="Endpoint Uptime" icon="warning">
     Monitor HTTP endpoints for uptime and response time. Alert when they go down.
   </Card>
   <Card title="Explainable Alerts" icon="warning">
@@ -37,14 +40,15 @@ You run a homelab. You have containers everywhere. Something goes down at 2am an
     Baseline-aware moods on every metric. Your server isn't just "at 80% CPU" — it's "😌 Normal" because that's typical for this container.
   </Card>
   <Card title="Modern Web UI" icon="star">
-    React dashboard with dark/light theme, clickable health score breakdowns, container actions, and a setup wizard — no .env file needed.
+    React dashboard with dark/light theme, clickable health score breakdowns, container actions, dedicated insights page, and a setup wizard — no .env file needed.
   </Card>
 </CardGrid>
 
 ## Quick Start
 
+### Docker (single server)
+
 ```bash
-# Single server (standalone mode)
 docker run -d \
   --name insightd \
   --restart unless-stopped \
@@ -55,15 +59,26 @@ docker run -d \
   andreas404/insightd-hub:latest
 ```
 
-Open `http://your-server:3000` and you're monitoring.
+Open `http://your-server:3000` and follow the setup wizard.
 
-## Multi-Server Setup
+### Kubernetes / k3s
+
+Deploy the agent as a DaemonSet — one pod per node:
+
+```bash
+kubectl apply -f https://raw.githubusercontent.com/goldenproductions/insightd/main/agent/k8s/rbac.yaml
+kubectl apply -f https://raw.githubusercontent.com/goldenproductions/insightd/main/agent/k8s/daemonset.yaml
+```
+
+Edit the DaemonSet env vars to point at your hub's MQTT broker. See the [Kubernetes guide](/insightd.dev/guides/kubernetes/) for full setup.
+
+## Multi-Server Architecture
 
 ```
-[Agent on each host] → MQTT (Mosquitto) → [Hub] → SQLite → Web UI + Email + Webhooks
+[Agent on each host/node] → MQTT (Mosquitto) → [Hub] → SQLite → Web UI + Email + Webhooks
 ```
 
-Deploy a Mosquitto broker + hub on one server, then add lightweight agents on each host. See the [Docker Compose guide](/insightd.dev/guides/docker-compose/) for the full setup.
+Deploy a Mosquitto broker + hub on one server, then add lightweight agents on each host (Docker container or k8s DaemonSet). See the [Docker Compose guide](/insightd.dev/guides/docker-compose/) for the full setup.
 
 ## Free & Open Source
 
