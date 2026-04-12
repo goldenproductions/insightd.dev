@@ -29,6 +29,12 @@ export default defineConfig({
           ],
         },
         {
+          label: 'Insights Engine',
+          items: [
+            { label: 'Health Check Diagnosis', slug: 'insights/diagnosis' },
+          ],
+        },
+        {
           label: 'API Reference',
           items: [
             { label: 'REST API', slug: 'reference/api' },
