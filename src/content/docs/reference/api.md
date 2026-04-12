@@ -186,7 +186,27 @@ Health score for a specific entity.
 
 ### `GET /api/insights`
 
-Latest anomaly insights (performance issues, predictions, correlations).
+Latest anomaly insights (performance issues, predictions, correlations, health diagnoses). Health-category insights include `evidence` (JSON array), `suggested_action`, and `confidence` fields populated by the diagnosis engine.
+
+## Storage
+
+### `GET /api/storage` (Auth)
+
+Returns database size on disk, per-table row counts and oldest timestamps, current retention settings, and last prune/vacuum timestamps.
+
+### `POST /api/storage/vacuum` (Auth)
+
+Manually run SQLite VACUUM to reclaim disk space after pruning. Returns `{ before, after, reclaimed }` (bytes).
+
+## Version Check
+
+### `GET /api/version-check`
+
+Returns current hub version and the latest hub/agent versions known from the last Docker Hub check.
+
+### `POST /api/version-check` (Auth)
+
+Force an immediate check against Docker Hub for new hub and agent versions. Returns the refreshed version info.
 
 ## Agent Setup
 
