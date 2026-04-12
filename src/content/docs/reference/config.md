@@ -104,6 +104,17 @@ SMTP, alerts, and most settings are **hot-reloadable** — changes take effect i
 | `INSIGHTD_COLLECT_INTERVAL` | `5` | Minutes between collection cycles |
 | `INSIGHTD_DISK_WARN_THRESHOLD` | `85` | Disk warning threshold (%) |
 
+## Data Retention
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `INSIGHTD_RETENTION_RAW_DAYS` | `30` | Days to keep full-resolution snapshots (min 7). Older raw data is rolled up into hourly aggregates before deletion. |
+| `INSIGHTD_RETENTION_ROLLUP_DAYS` | `365` | Days to keep hourly rollups (min 30). Rollups give you long-term trends without unbounded growth. |
+
+:::tip
+Both retention settings are hot-reloadable from the **Settings page**. The Storage card shows your current database size, last cleanup time, and a "Vacuum Now" button. Pruning runs daily at 03:30 (independent of digest delivery), with conditional VACUUM after large prunes.
+:::
+
 ## Log Tailing
 
 | Variable | Default | Description |
