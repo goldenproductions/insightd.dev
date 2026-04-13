@@ -33,7 +33,9 @@ SMTP, alerts, and most settings are **hot-reloadable** — changes take effect i
 |----------|---------|-------------|
 | `INSIGHTD_ALERTS_ENABLED` | `false` | Enable real-time alerts |
 | `INSIGHTD_ALERTS_TO` | _(digest recipient)_ | Alert email recipient |
-| `INSIGHTD_ALERT_COOLDOWN` | `60` | Minutes between repeat alerts |
+| `INSIGHTD_ALERT_COOLDOWN` | `60` | Minutes between the first reminders for a persistent alert. With backoff on, this is the *base* — each subsequent reminder doubles the gap. |
+| `INSIGHTD_ALERT_REMINDER_BACKOFF` | `true` | Slow down reminders for long-lived alerts. Each reminder doubles the previous gap (`60m → 2h → 4h → 8h → …`) until the cap. Prevents the inbox from filling with the same alert. |
+| `INSIGHTD_ALERT_REMINDER_MAX` | `1440` | Upper bound on the gap between reminders, in minutes. Default 1440 = once per day. |
 | `INSIGHTD_ALERT_DOWN` | `true` | Alert on container down |
 | `INSIGHTD_ALERT_CPU` | `90` | Container CPU threshold (%) |
 | `INSIGHTD_ALERT_MEMORY` | `0` | Container memory threshold (MB, 0=disabled) |
@@ -46,6 +48,10 @@ SMTP, alerts, and most settings are **hot-reloadable** — changes take effect i
 | `INSIGHTD_ALERT_EXCLUDE` | _(none)_ | Exclude containers from alerts (comma-separated globs, e.g. `dev-*,test-*`) |
 | `INSIGHTD_ALERT_ENDPOINT_DOWN` | `true` | Alert when HTTP endpoints go down |
 | `INSIGHTD_ALERT_ENDPOINT_FAILURES` | `3` | Consecutive failures before alerting |
+
+:::tip
+Active alerts can also be **silenced per-instance** from the Alerts page or container detail page — pick a preset (1h / 4h / 1d / 7d / until resolved) to mute reminders without disabling the alert type globally. Silencing does not reset the backoff counter; reminders resume at the same step on unsilence.
+:::
 
 ## Web UI
 
@@ -74,6 +80,24 @@ SMTP, alerts, and most settings are **hot-reloadable** — changes take effect i
 | `INSIGHTD_RUNTIME` | `auto` | Container runtime: `auto`, `docker`, or `kubernetes` |
 | `INSIGHTD_ALLOW_ACTIONS` | `false` | Enable container start/stop/restart from UI (Docker only) |
 | `INSIGHTD_ALLOW_UPDATES` | `false` | Enable remote agent self-updates (Docker only) |
+
+## Host Grouping
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `INSIGHTD_HOST_GROUP` | _(none)_ | Optional logical group label (e.g. `production-cluster`, `basement`). Surfaces as collapsible sections on the Hosts page. The agent reports its group; a manual override on the Hosts page detail (PUT `/api/hosts/:id/group`) always wins over the env var. |
+
+## AI Diagnosis (Gemini)
+
+The container detail page has a "Diagnose with AI" button that sends the diagnosis context (metrics, baselines, restart history, log signals) to Google Gemini and persists the response. Disabled by default — set the API key to enable it. All settings are also available on **Settings → AI Diagnosis** in the web UI.
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `GEMINI_API_KEY` | _(none)_ | Google Gemini API key. Free tier is sufficient. Get one at [aistudio.google.com/apikey](https://aistudio.google.com/apikey). |
+| `GEMINI_MODEL` | `gemini-2.5-flash` | Model name. Default is the free, fast model. `gemini-2.0-flash` is also free but returns `limit: 0` on new AI Studio projects. |
+| `GEMINI_TIMEOUT_MS` | `20000` | Abort the Gemini request after this many milliseconds. |
+
+Cache hits via `sha256(context) + 24h TTL` avoid duplicate requests. Rate limit responses (429) surface in the UI with a live cooldown countdown.
 
 ## Kubernetes (DaemonSet Mode)
 
