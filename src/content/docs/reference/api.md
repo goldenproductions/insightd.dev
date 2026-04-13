@@ -100,7 +100,45 @@ Remove a host and all its data.
 
 ### `GET /api/alerts`
 
-All alerts with context (message, trigger value, threshold). Query: `?active=false` to include resolved alerts (default shows active only).
+All alerts (active + resolved) with context (message, trigger value, threshold, silence state). Query: `?activeOnly=true` to filter to currently-active alerts only. The legacy `?active=false` form is still accepted as an alias for "all".
+
+Each alert row includes `silenced_until`, `silenced_by`, and `silenced_at` (all `null` when not silenced). The sentinel `'9999-12-31 23:59:59'` represents "until the alert resolves naturally".
+
+### `POST /api/alerts/:id/silence` (Auth)
+
+Silence an alert's reminder notifications. Body: `{"durationMinutes": 60}` for a fixed window, or `{"durationMinutes": "resolved"}` to silence until the alert resolves naturally.
+
+- `409` if the alert is already resolved (nothing to silence)
+- `404` if the alert id is unknown
+- Returns the updated alert row
+
+Silencing only blocks **reminders** — the initial notification has already fired by the time the alert exists. Silencing does **not** reset the reminder backoff counter (`notify_count`); when the silence expires, the exponential backoff from `INSIGHTD_ALERT_REMINDER_BACKOFF` resumes at the same step.
+
+Webhook delivery inherits the silencing automatically — silenced alerts skip both email and webhook reminders.
+
+### `DELETE /api/alerts/:id/silence` (Auth)
+
+Clear an alert's silence state. Returns the updated alert row.
+
+### `DELETE /api/alerts/:id` (Auth)
+
+Permanently delete a resolved alert from history. Refuses with `409` if the alert is still active — silencing is the right tool for those, since the next evaluator run would just re-create the row.
+
+## AI Diagnosis
+
+The "Diagnose with AI" feature on the container detail page sends the diagnosis context to Google Gemini and persists the structured response. Disabled by default; configure via `GEMINI_API_KEY` (see [Configuration Reference](/insightd.dev/reference/config/)) or the **Settings → AI Diagnosis** page.
+
+### `GET /api/ai-diagnose/status`
+
+Returns `{ enabled: boolean, model: string | null }`. Enabled when a Gemini API key is configured.
+
+### `GET /api/hosts/:hostId/containers/:containerName/ai-diagnose`
+
+Latest persisted AI diagnosis for a container, or `404` if none exists. Includes `rootCause`, `reasoning`, `suggestedFix`, `confidence` (0–1), `caveats[]`, `model`, `latencyMs`, `createdAt`, and `cached` (true if returned from the 24h cache).
+
+### `POST /api/hosts/:hostId/containers/:containerName/ai-diagnose` (Auth)
+
+Run a fresh AI diagnosis against the current container context. Returns the same shape as the GET endpoint. Cache hits via sha256(context) avoid sending duplicate requests within 24h. Returns `429` if Gemini rate-limited the request.
 
 ## HTTP Endpoints
 
