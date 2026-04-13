@@ -25,6 +25,7 @@ export default defineConfig({
           label: 'Configuration',
           items: [
             { label: 'Environment Variables', slug: 'reference/config' },
+            { label: 'Keyboard Shortcuts', slug: 'reference/keyboard-shortcuts' },
             { label: 'Webhooks', slug: 'reference/webhooks' },
             { label: 'Endpoint Monitoring', slug: 'reference/endpoints' },
           ],
