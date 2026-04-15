@@ -74,8 +74,8 @@ Open your hub UI — you'll see one host per node, with all the pods on that nod
 
 ## What's not supported in k8s mode
 
-- **Container actions** (start/stop/restart/remove) — these would require managing pods/deployments, which is the cluster's job
-- **Image update checks** — Kubernetes manages image updates via deployments and rollouts; checking digests against Docker Hub is not meaningful in this context
+- **Container actions** (start/stop/restart/remove) — managing pods is the cluster's job, not the hub's. Setting `INSIGHTD_ALLOW_ACTIONS=true` has no effect; the agent will log a warning at startup if you set it. The container detail page renders Start/Stop/Restart disabled with a tooltip on k8s hosts.
+- **Image update checks and remote updates** — Kubernetes manages image updates via deployments and rollouts; checking digests against Docker Hub is not meaningful in this context. Setting `INSIGHTD_ALLOW_UPDATES=true` has no effect; the agent will log a warning at startup if you set it. The Updates page shows k8s agents with a "Managed by cluster" label instead of an Update button.
 
 If you need to perform actions or check image updates, use the Docker runtime mode for those hosts.
 
@@ -84,8 +84,9 @@ If you need to perform actions or check image updates, use the Docker runtime mo
 The DaemonSet uses a ServiceAccount with these read-only cluster permissions:
 
 - `pods` and `pods/log` — get, list, watch (to discover pods on the node and read logs)
-- `nodes` — get, list (to verify the node exists at startup)
-- `nodes/metrics`, `nodes/stats`, `nodes/proxy` — get (to query the kubelet's cAdvisor endpoint)
+- `nodes` — get, list (to verify the node exists, read capacity for total memory, read `creationTimestamp` for uptime)
+- `nodes/metrics`, `nodes/stats`, `nodes/proxy` — get (to query the kubelet's `/metrics/cadvisor` and `/stats/summary` endpoints)
+- `replicasets` (apps API group) — get, list (to walk pod owner references up to the parent Deployment so containers keep a stable name across rollouts)
 
 The agent never modifies anything in the cluster.
 
@@ -93,6 +94,6 @@ The agent never modifies anything in the cluster.
 
 By default the agent talks to `https://${NODE_IP}:10250`. If your kubelet listens on a different port or you need to override the URL, set `INSIGHTD_KUBELET_URL` in the DaemonSet env vars.
 
-## Standalone (non-DaemonSet) mode
+## In-cluster only
 
-You can also run the agent outside the cluster pointing at a kubeconfig. Set `INSIGHTD_RUNTIME=kubernetes` and `NODE_NAME` to the node you want to monitor. The agent will use the default kubeconfig (`~/.kube/config` or `KUBECONFIG` env var) to authenticate. This mode is mainly useful for development and testing — for production, use the DaemonSet.
+The agent requires in-cluster service account credentials (mounted at `/var/run/secrets/kubernetes.io/serviceaccount/`) and the `KUBERNETES_SERVICE_HOST` env var that Kubernetes injects automatically. Running the agent outside the cluster pointing at a kubeconfig is **not supported** — use the DaemonSet.
