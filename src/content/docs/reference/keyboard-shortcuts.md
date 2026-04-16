@@ -42,6 +42,28 @@ Available on `/hosts/:hostId/containers/:containerName`. The action shortcuts au
 | `[` | Previous container on the same host (alphabetical) |
 | `]` | Next container on the same host (alphabetical) |
 
+## Host detail
+
+Available on `/hosts/:hostId`.
+
+| Key | Action |
+|---|---|
+| `1` | Switch to Overview tab |
+| `2` | Switch to Resources tab |
+| `3` | Switch to Alerts tab |
+| `b` | Back to hosts list |
+| `[` | Previous host (alphabetical) |
+| `]` | Next host (alphabetical) |
+
+## Endpoint detail
+
+Available on `/endpoints/:endpointId`.
+
+| Key | Action |
+|---|---|
+| `b` | Back to endpoints list |
+| `e` | Edit endpoint (requires authentication) |
+
 ## Dashboard
 
 | Key | Action |
