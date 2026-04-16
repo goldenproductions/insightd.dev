@@ -2,7 +2,7 @@ import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 
 export default defineConfig({
-  base: '/insightd.dev/',
+  site: 'https://docs.insightd.org',
   integrations: [
     starlight({
       title: 'insightd',

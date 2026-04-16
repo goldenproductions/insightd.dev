@@ -76,4 +76,4 @@ Available on `/endpoints/:endpointId`.
 |---|---|
 | `r` | Refresh the alerts list |
 
-The Alerts page also has a per-section **Select** toggle button (top-right of each section card) that reveals row checkboxes and a bulk action toolbar — silence presets for active alerts, Clear for resolved alerts. See the [Alerts page guide](/insightd.dev/reference/config/#alerts) for more on bulk operations.
+The Alerts page also has a per-section **Select** toggle button (top-right of each section card) that reveals row checkboxes and a bulk action toolbar — silence presets for active alerts, Clear for resolved alerts. See the [Alerts page guide](/reference/config/#alerts) for more on bulk operations.
