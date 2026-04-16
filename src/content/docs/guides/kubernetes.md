@@ -3,17 +3,17 @@ title: Kubernetes / k3s Setup
 description: Deploy the insightd agent as a DaemonSet on Kubernetes or k3s
 ---
 
-The insightd agent runs as a **DaemonSet** in Kubernetes — one pod per node. Each agent only sees pods on its own node, and reports its node as a "host" to the hub. Each pod's containers appear in the dashboard.
+On Kubernetes / k3s the insightd agent runs as a **DaemonSet** — one pod per node — reporting to the same hub and Mosquitto broker you set up in the [Quick Start](/guides/quick-start/). Each agent only sees pods on its own node and reports that node as a "host"; each pod's containers appear in the dashboard.
 
 ## Prerequisites
 
 - A Kubernetes or k3s cluster
-- An MQTT broker reachable from the cluster (your hub stack)
+- A running hub + Mosquitto (from the [Quick Start](/guides/quick-start/)) reachable from the cluster
 - `kubectl` configured against your cluster
 
-## Step 1: Deploy the hub somewhere
+## Step 1: Confirm the hub is reachable
 
-The hub doesn't need to run inside the cluster — it just needs an MQTT broker the agents can reach. You can run it as a separate Docker container, in another cluster, or anywhere else. See the [Docker Compose guide](/guides/docker-compose/) for the hub setup.
+The hub doesn't need to run inside the cluster — the agents just need to reach its Mosquitto broker on port `1883`. If you haven't set the hub up yet, follow the [Quick Start](/guides/quick-start/) first.
 
 ## Step 2: Edit the DaemonSet manifest
 

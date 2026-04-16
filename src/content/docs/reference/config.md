@@ -3,7 +3,9 @@ title: Configuration Reference
 description: All environment variables for insightd hub and agent
 ---
 
-All configuration can be done from the **Setup Wizard** and **Settings** page in the web UI — no `.env` file required. Environment variables are also supported and take effect as defaults (UI settings override them).
+The hub's **Settings page** is the primary configuration surface — email, alerts, webhooks, AI diagnosis, retention, and the status page are all editable there, hot-reloadable, and persisted to the hub's SQLite database. Most users never need to touch an environment variable after the initial `docker-compose.yml` in the [Quick Start](/guides/quick-start/).
+
+The variables listed below are equivalent defaults for users who prefer declarative deployments (Docker Compose, Kubernetes, Ansible). For keys that appear both here and in the UI, the DB value wins.
 
 :::tip
 SMTP, alerts, and most settings are **hot-reloadable** — changes take effect immediately without restarting the container.
