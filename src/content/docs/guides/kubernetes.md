@@ -72,6 +72,24 @@ Open your hub UI — you'll see one host per node, with all the pods on that nod
 - **Logs** via the Kubernetes API
 - **k8s badge** next to the host name in the host detail page
 
+## Namespace filtering
+
+Kubernetes clusters come with many system services (`kube-system`, `kube-proxy`, `coredns`, `metrics-server`, etc.) that you may not care about monitoring. The host detail page for k8s nodes includes a **namespace filter bar** above the uptime timeline:
+
+- **Toggle chips** for each namespace — click to hide/show
+- Applies to both the **Uptime (7 days)** timeline and the **Containers** table
+- Hidden namespaces are **persisted per host** in your browser (localStorage)
+- All namespaces are visible by default — click to hide what you don't need
+- A **"Show all"** link appears when filtering is active, showing how many containers are hidden
+
+For example, if you only care about your workloads in `default` and `monitoring`, click `kube-system` to hide all the system pods. The filter remembers your choice across page refreshes.
+
+The namespace prefix is also **dimmed** in the container name column so the pod/container name stands out.
+
+:::note
+The namespace filter only appears on Kubernetes hosts. Docker hosts are unaffected.
+:::
+
 ## What's not supported in k8s mode
 
 - **Container actions** (start/stop/restart/remove) — managing pods is the cluster's job, not the hub's. Setting `INSIGHTD_ALLOW_ACTIONS=true` has no effect; the agent will log a warning at startup if you set it. The container detail page renders Start/Stop/Restart disabled with a tooltip on k8s hosts.

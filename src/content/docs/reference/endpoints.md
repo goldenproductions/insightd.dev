@@ -59,9 +59,12 @@ When you have endpoints configured, the dashboard shows an **Endpoints Up X/Y** 
 
 Click any endpoint to see:
 
-- Current status with 24h and 7d uptime percentages
-- Response time bar chart (last 24 hours)
-- Check history table with status codes and errors
+- **Status badge** (Up/Down) with color-coded uptime and response time stats
+- **Check status strip** — 24 hours of checks bucketed into ~15-minute slots. Hover any slot to see pass/fail count, average response time, and error details. Red slots indicate at least one failure in that window.
+- **Response time chart** — full TimeSeriesChart with time axis, hover tooltips, and area fill (replaces the old bar chart)
+- **Failed checks table** — only failed checks are shown in detail. If all checks passed, a summary message is shown instead.
+
+Keyboard shortcuts: `b` to go back, `e` to edit (when logged in). Press `?` for the full shortcut list.
 
 ## Weekly Digest
 
