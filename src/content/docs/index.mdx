@@ -14,41 +14,31 @@ hero:
       icon: external
 ---
 
-## Quick Start
+## Install
 
-### Docker (single server)
-
-```bash
-docker run -d \
-  --name insightd \
-  --restart unless-stopped \
-  -v /var/run/docker.sock:/var/run/docker.sock:ro \
-  -v /:/host:ro \
-  -v insightd-data:/data \
-  -p 3000:3000 \
-  andreas404/insightd-hub:latest
-```
-
-Open `http://your-server:3000` and follow the setup wizard.
-
-### Kubernetes / k3s
-
-Deploy the agent as a DaemonSet — one pod per node:
+insightd runs as three containers — Mosquitto, the hub, and an agent — managed with Docker Compose. To monitor a second server you run one more agent container on it. That's the only difference.
 
 ```bash
-kubectl apply -f https://raw.githubusercontent.com/goldenproductions/insightd/main/agent/k8s/rbac.yaml
-kubectl apply -f https://raw.githubusercontent.com/goldenproductions/insightd/main/agent/k8s/daemonset.yaml
+mkdir -p ~/insightd && cd ~/insightd
+# create mosquitto.conf + docker-compose.yml (see Quick Start)
+docker compose up -d
 ```
 
-Edit the DaemonSet env vars to point at your hub's MQTT broker. See the [Kubernetes guide](/guides/kubernetes/) for full setup.
+Then open `http://your-server:3000` and follow the setup wizard.
 
-## Multi-Server Architecture
+**[Full install guide →](/guides/quick-start/)**
+
+For Kubernetes or k3s clusters, see the [Kubernetes guide](/guides/kubernetes/) — the agent runs as a DaemonSet and reports to the same hub.
+
+## Architecture
 
 ```
-[Agent on each host/node] → MQTT (Mosquitto) → [Hub] → SQLite → Web UI + Email + Webhooks
+[agent per host] ─┐
+[agent per host] ─┼─► MQTT (Mosquitto) ─► [hub] ─► SQLite ─► Web UI + Email + Webhooks
+[agent per host] ─┘
 ```
 
-Deploy a Mosquitto broker + hub on one server, then add lightweight agents on each host (Docker container or k8s DaemonSet). See the [Docker Compose guide](/guides/docker-compose/) for the full setup.
+Once the hub is running, every feature — email, alerts, webhooks, AI diagnosis, retention, the public status page — is configured from the **Settings** page in the UI. No `.env` file required.
 
 ## Free & Open Source
 

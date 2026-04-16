@@ -29,39 +29,21 @@ With insightd you get:
 
 ## Architecture
 
-insightd runs in three modes depending on your setup:
-
-### Standalone Mode (Docker, single server)
-
-One container that monitors Docker and the host system directly. Best for single-server setups.
+One hub, one Mosquitto broker, and one agent per monitored host. To monitor ten hosts instead of one, you run nine more agents — nothing else changes.
 
 ```
-[insightd-hub] → Docker socket → collects metrics → SQLite → Web UI
+[agent per host] ─┐
+[agent per host] ─┼─► MQTT (Mosquitto) ─► [hub] ─► SQLite ─► Web UI + Email + Webhooks
+[agent per host] ─┘
 ```
 
-### Hub + Agent Mode (multi-server Docker)
+On Kubernetes / k3s the agent runs as a **DaemonSet** — one pod per node, reporting to the same hub and Mosquitto broker. Each pod's containers appear in the dashboard as `{namespace}/{pod-name}/{container-name}`. See the [Kubernetes guide](/guides/kubernetes/).
 
-For monitoring multiple Docker hosts. A lightweight agent runs on each host and reports to a central hub via MQTT.
-
-```
-[Agent on host-1] ─┐
-[Agent on host-2] ─┤→ MQTT (Mosquitto) → [Hub] → SQLite → Web UI + Email + Webhooks
-[Agent on host-3] ─┘
-```
-
-### Kubernetes / k3s Mode (DaemonSet)
-
-The agent runs as a DaemonSet — one pod per node. Each pod's containers appear in the dashboard as `{namespace}/{pod-name}/{container-name}`. Read-only monitoring (actions and image update checks aren't available — those are managed by the cluster).
-
-```
-node-1: [agent pod] ─┐
-node-2: [agent pod] ─┤→ MQTT → [Hub] → Web UI
-node-3: [agent pod] ─┘
-```
+Everything that isn't installation — email, alerts, webhooks, AI diagnosis, retention, the status page — is configured from the hub's **Settings** page after first boot. A one-time setup wizard handles the admin password, SMTP, and the command for adding your first agent.
 
 ## Requirements
 
-- Docker (any recent version) or Kubernetes/k3s
-- ~30MB RAM for the hub, ~20MB per agent
-- Port 3000 for the web UI (configurable)
-- Port 1883 for MQTT (hub mode only)
+- Docker Engine + Compose v2, or a Kubernetes/k3s cluster for the agents
+- ~30 MB RAM for the hub, ~20 MB per agent
+- TCP port 3000 for the web UI (configurable)
+- TCP port 1883 for MQTT (LAN only)
