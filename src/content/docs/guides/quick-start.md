@@ -65,6 +65,6 @@ Log in to the web UI, go to **Webhooks**, and add a notification channel. Suppor
 
 ## Next Steps
 
-- [Docker Compose setup](/insightd.dev/guides/docker-compose/) for multi-server monitoring
-- [Configuration reference](/insightd.dev/reference/config/) for all environment variables
-- [Endpoint monitoring](/insightd.dev/reference/endpoints/) to monitor HTTP URLs
+- [Docker Compose setup](/guides/docker-compose/) for multi-server monitoring
+- [Configuration reference](/reference/config/) for all environment variables
+- [Endpoint monitoring](/reference/endpoints/) to monitor HTTP URLs

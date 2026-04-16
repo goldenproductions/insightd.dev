@@ -6,7 +6,7 @@ hero:
   tagline: Self-hosted server awareness for homelabbers. Monitor containers, hosts, and endpoints — without the complexity of Prometheus + Grafana.
   actions:
     - text: Get Started
-      link: /insightd.dev/guides/quick-start/
+      link: /guides/quick-start/
       icon: right-arrow
       variant: primary
     - text: View on GitHub
@@ -37,7 +37,7 @@ You run a homelab. You have containers everywhere. Something goes down at 2am an
     10 alert types with cooldown, resolution, and webhooks. Every alert tells you **why** it fired — the value, the threshold, and the full context.
   </Card>
   <Card title="Diagnosis Engine" icon="puzzle">
-    When a container is unhealthy, insightd correlates metrics, baselines, restart history, host state, and recent logs to explain **why** and suggest **what to do** — not just "wget connection refused". [Read more](/insightd.dev/insights/diagnosis/)
+    When a container is unhealthy, insightd correlates metrics, baselines, restart history, host state, and recent logs to explain **why** and suggest **what to do** — not just "wget connection refused". [Read more](/insights/diagnosis/)
   </Card>
   <Card title="Metric Personalities" icon="star">
     Baseline-aware moods on every metric. Your server isn't just "at 80% CPU" — it's "😌 Normal" because that's typical for this container.
@@ -73,7 +73,7 @@ kubectl apply -f https://raw.githubusercontent.com/goldenproductions/insightd/ma
 kubectl apply -f https://raw.githubusercontent.com/goldenproductions/insightd/main/agent/k8s/daemonset.yaml
 ```
 
-Edit the DaemonSet env vars to point at your hub's MQTT broker. See the [Kubernetes guide](/insightd.dev/guides/kubernetes/) for full setup.
+Edit the DaemonSet env vars to point at your hub's MQTT broker. See the [Kubernetes guide](/guides/kubernetes/) for full setup.
 
 ## Multi-Server Architecture
 
@@ -81,7 +81,7 @@ Edit the DaemonSet env vars to point at your hub's MQTT broker. See the [Kuberne
 [Agent on each host/node] → MQTT (Mosquitto) → [Hub] → SQLite → Web UI + Email + Webhooks
 ```
 
-Deploy a Mosquitto broker + hub on one server, then add lightweight agents on each host (Docker container or k8s DaemonSet). See the [Docker Compose guide](/insightd.dev/guides/docker-compose/) for the full setup.
+Deploy a Mosquitto broker + hub on one server, then add lightweight agents on each host (Docker container or k8s DaemonSet). See the [Docker Compose guide](/guides/docker-compose/) for the full setup.
 
 ## Free & Open Source
 

@@ -13,7 +13,7 @@ The insightd agent runs as a **DaemonSet** in Kubernetes — one pod per node. E
 
 ## Step 1: Deploy the hub somewhere
 
-The hub doesn't need to run inside the cluster — it just needs an MQTT broker the agents can reach. You can run it as a separate Docker container, in another cluster, or anywhere else. See the [Docker Compose guide](/insightd.dev/guides/docker-compose/) for the hub setup.
+The hub doesn't need to run inside the cluster — it just needs an MQTT broker the agents can reach. You can run it as a separate Docker container, in another cluster, or anywhere else. See the [Docker Compose guide](/guides/docker-compose/) for the hub setup.
 
 ## Step 2: Edit the DaemonSet manifest
 

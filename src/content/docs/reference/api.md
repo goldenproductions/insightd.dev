@@ -126,7 +126,7 @@ Permanently delete a resolved alert from history. Refuses with `409` if the aler
 
 ## AI Diagnosis
 
-The "Diagnose with AI" feature on the container detail page sends the diagnosis context to Google Gemini and persists the structured response. Disabled by default; configure via `GEMINI_API_KEY` (see [Configuration Reference](/insightd.dev/reference/config/)) or the **Settings → AI Diagnosis** page.
+The "Diagnose with AI" feature on the container detail page sends the diagnosis context to Google Gemini and persists the structured response. Disabled by default; configure via `GEMINI_API_KEY` (see [Configuration Reference](/reference/config/)) or the **Settings → AI Diagnosis** page.
 
 ### `GET /api/ai-diagnose/status`
 
