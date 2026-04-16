@@ -19,12 +19,10 @@ hero:
 insightd runs as three containers — Mosquitto, the hub, and an agent — managed with Docker Compose. To monitor a second server you run one more agent container on it. That's the only difference.
 
 ```bash
-mkdir -p ~/insightd && cd ~/insightd
-# create mosquitto.conf + docker-compose.yml (see Quick Start)
-docker compose up -d
+curl -sSL https://insightd.org/install.sh | bash
 ```
 
-Then open `http://your-server:3000` and follow the setup wizard.
+The script generates a random MQTT password, writes a compose file, and starts everything. Then open `http://your-server:3000` and follow the setup wizard.
 
 **[Full install guide →](/guides/quick-start/)**
 
