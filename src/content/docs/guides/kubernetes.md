@@ -62,6 +62,117 @@ Collected 12 containers on node my-node-01
 
 Open your hub UI — you'll see one host per node, with all the pods on that node listed as containers.
 
+## GitOps with Argo CD
+
+If you already manage your cluster with [Argo CD](https://argo-cd.readthedocs.io/), you can drop the agent into your GitOps repo instead of `kubectl apply`-ing it by hand. A complete working example lives in [goldenproductions/monitoring#1](https://github.com/goldenproductions/monitoring/pull/1) — the files below mirror that PR.
+
+### Repo layout
+
+```
+clusters/<cluster-name>/
+  argocd/apps/
+    observability-insightd-agent.yaml   # Argo CD Application
+  observability/insightd-agent/
+    kustomization.yaml
+    serviceaccount.yaml
+    rbac.yaml
+    daemonset.yaml
+    config.env                          # mqttUrl + hostGroup (committed)
+```
+
+### `observability/insightd-agent/kustomization.yaml`
+
+```yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: insightd
+resources:
+  - serviceaccount.yaml
+  - rbac.yaml
+  - daemonset.yaml
+configMapGenerator:
+  - name: insightd-agent-config
+    envs:
+      - config.env
+generatorOptions:
+  disableNameSuffixHash: true
+```
+
+### `observability/insightd-agent/config.env`
+
+```env
+mqttUrl=mqtt://your-hub.lan:1883
+hostGroup=my-cluster
+```
+
+### `observability/insightd-agent/daemonset.yaml`
+
+Copy [`agent/k8s/daemonset.yaml`](https://github.com/goldenproductions/insightd/blob/main/agent/k8s/daemonset.yaml) from the insightd repo and change two env sources to pull from the generated ConfigMap:
+
+```yaml
+- name: INSIGHTD_HOST_GROUP
+  valueFrom:
+    configMapKeyRef:
+      name: insightd-agent-config
+      key: hostGroup
+- name: INSIGHTD_MQTT_URL
+  valueFrom:
+    configMapKeyRef:
+      name: insightd-agent-config
+      key: mqttUrl
+```
+
+Pin the image to a specific version — k8s-mode agents cannot self-update via MQTT, so you roll them forward by bumping the tag in git:
+
+```yaml
+image: andreas404/insightd-agent:0.13.0
+imagePullPolicy: IfNotPresent
+```
+
+### `argocd/apps/observability-insightd-agent.yaml`
+
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: observability-insightd-agent
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/YOUR_ORG/YOUR_REPO.git
+    targetRevision: HEAD
+    path: clusters/<cluster-name>/observability/insightd-agent
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: insightd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - PruneLast=true
+      - ServerSideApply=true
+```
+
+### MQTT credentials (out-of-band)
+
+Don't commit the broker password — create the Secret against the cluster once:
+
+```bash
+kubectl create secret generic insightd-mqtt \
+  --namespace=insightd \
+  --from-literal=username=insightd \
+  --from-literal=password=YOUR_PASSWORD
+```
+
+The DaemonSet references this Secret with `optional: true`, so skip it entirely if your broker is anonymous.
+
+### Rolling forward
+
+Bump `image:` in `daemonset.yaml` and merge — Argo CD reconciles and the DaemonSet rolls out. No `kubectl` needed after the initial Secret.
+
 ## What you'll see in the UI
 
 - **One host per node**, named after the node
