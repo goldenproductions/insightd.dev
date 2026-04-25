@@ -70,6 +70,14 @@ Host metrics history. Query: `?hours=24` (1-720).
 
 Latest disk usage per mount point.
 
+### `GET /api/hosts/:hostId/k8s-events`
+
+Cluster Warning events scoped to the host's cluster. Available on Kubernetes hosts only — returns an empty array on Docker hosts. Query: `?reason=`, `?namespace=`, `?sinceHours=24`, `?limit=200`.
+
+### `GET /api/hosts/:hostId/node-conditions`
+
+Current Kubernetes node conditions (`Ready`, `MemoryPressure`, `DiskPressure`, `PIDPressure`, `NetworkUnavailable`) for the host. Returns `{ items: [...] }`; each item carries `type`, `status`, `reason`, `message`, `last_heartbeat_at`, `last_transition_at`.
+
 ## Dashboard
 
 ### `GET /api/dashboard`
@@ -100,9 +108,35 @@ Remove a host and all its data.
 
 ### `GET /api/alerts`
 
-All alerts (active + resolved) with context (message, trigger value, threshold, silence state). Query: `?activeOnly=true` to filter to currently-active alerts only. The legacy `?active=false` form is still accepted as an alias for "all".
+All alerts (active + resolved) with context, plus pre-filter facet counts so the UI rail can show "how many match if I add this filter". Returns:
+
+```json
+{
+  "total": 61,
+  "alerts": [ /* alert rows with `level` derived from alert_type */ ],
+  "counts": {
+    "byStatus":    { "active": 4, "resolved": 57 },
+    "byLevel":     { "critical": 0, "error": 1, "warning": 3, "info": 0 },
+    "byHost":      [{ "host_id": "proxmox-01", "count": 40 }, ...],
+    "byNamespace": [{ "namespace": "default", "count": 5 }, ...],
+    "byMuted":     { "muted": 0, "not_muted": 4 }
+  }
+}
+```
+
+Query params:
+
+- `?status=active|resolved` — only active or only resolved (omit for both)
+- `?levels=critical,error,warning,info` — comma-separated levels
+- `?hosts=h1,h2` — comma-separated host ids
+- `?namespaces=ns1,ns2` — comma-separated Kubernetes namespaces (parsed from the alert target prefix; ignored on Docker hosts)
+- `?muted=true|false` — only silenced or only not-silenced
+- `?q=...` — case-insensitive substring match on alert_type, target, message, host_id
+- `?limit=20&offset=0` — pagination (limit clamped to [1, 200])
 
 Each alert row includes `silenced_until`, `silenced_by`, and `silenced_at` (all `null` when not silenced). The sentinel `'9999-12-31 23:59:59'` represents "until the alert resolves naturally".
+
+The `byNamespace` facet is filtered by every other active filter (host, level, status, muted, q) but **not** by the namespace filter itself, so selecting a namespace doesn't zero out its own count. Docker-only fleets get an empty `byNamespace` array.
 
 ### `POST /api/alerts/:id/silence` (Auth)
 
@@ -165,6 +199,30 @@ Delete an endpoint and all its check history.
 ### `GET /api/endpoints/:id/checks`
 
 Check history. Query: `?hours=24` (1-720).
+
+## Kubernetes Ingress auto-discovery
+
+The leader-elected agent on a Kubernetes cluster publishes an inventory of cluster Ingresses. The hub surfaces them on the Endpoints page; the user can promote any of them to a polling HTTP endpoint with one click, or dismiss the ones they don't want to monitor.
+
+### `GET /api/ingresses`
+
+List of currently-discovered Ingresses (not yet monitored, not dismissed, present in the cluster). Each row includes `id`, `clusterId`, `namespace`, `name`, `ingressClass`, `hosts[]`, `paths[]`, `tlsHosts[]`, `defaultUrl`, `defaultName`. Empty array on Docker-only fleets.
+
+### `POST /api/endpoints/from-ingress/:ingressId` (Auth)
+
+Promote a discovered Ingress to a monitored HTTP endpoint. URL is composed from the first host plus the first non-`/` path; scheme is `https://` when the host appears in `spec.tls[].hosts[]`, else `http://`. Name follows `<namespace>/<host>` with a `-2`/`-3` suffix on collision. Defaults: GET, expect 200, 60s interval, 10s timeout.
+
+- `404` if the ingress id is unknown or no longer present
+- `409` if the ingress is already monitored (response body includes `endpointId`)
+- `422` if the ingress has no host (not actionable as URL)
+
+### `POST /api/ingresses/:ingressId/dismiss` (Auth)
+
+Hide an Ingress from the discovered list without monitoring it. Idempotent. The Ingress reappears only if it's deleted from the cluster and recreated.
+
+### `DELETE /api/ingresses/:ingressId/dismiss` (Auth)
+
+Un-dismiss a previously dismissed Ingress so it shows up on the Endpoints page again.
 
 ## Webhooks
 
@@ -235,6 +293,18 @@ Returns database size on disk, per-table row counts and oldest timestamps, curre
 ### `POST /api/storage/vacuum` (Auth)
 
 Manually run SQLite VACUUM to reclaim disk space after pruning. Returns `{ before, after, reclaimed }` (bytes).
+
+### `GET /api/disks-overview`
+
+Fleet-wide disk usage with per-mount forecasts ("X days until full") and warning flags. Powers the Storage page's Hosts tab.
+
+### `GET /api/volumes-overview`
+
+Docker volume inventory across all hosts: name, driver, mountpoint, size if reported by Docker, container count using the volume.
+
+### `GET /api/pvs-overview`
+
+Kubernetes PersistentVolume + PersistentVolumeClaim inventory grouped by cluster. Includes phase, capacity, claim binding, storage class, CSI driver. Empty if no k8s clusters are connected.
 
 ## Version Check
 

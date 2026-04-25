@@ -64,6 +64,7 @@ Active alerts can also be **silenced per-instance** from the Alerts page or cont
 | `INSIGHTD_WEB_HOST` | `0.0.0.0` | Bind address |
 | `INSIGHTD_ADMIN_PASSWORD` | _(none)_ | Admin password for settings/webhooks |
 | `INSIGHTD_EXTERNAL_HOST` | _(auto)_ | Hostname shown in agent setup commands |
+| `INSIGHTD_WEB_BASE_URL` | _(none)_ | Public hub URL used in email links (e.g. `https://insightd.example.com`). Also editable from Settings → Web. Emails render fine unset; the "Open dashboard" buttons just disappear. |
 | `INSIGHTD_STATUS_PAGE` | `false` | Enable public status page at `/status` (no auth) |
 
 ## MQTT (Hub Mode)

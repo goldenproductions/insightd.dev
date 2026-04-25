@@ -178,27 +178,32 @@ Bump `image:` in `daemonset.yaml` and merge — Argo CD reconciles and the Daemo
 - **One host per node**, named after the node
 - **Each pod's containers** appear as containers under that host
 - **Container names** use the format `{namespace}/{pod-name}/{container-name}`
-- **CPU/memory metrics** from the kubelet's cAdvisor endpoint
+- **CPU/memory metrics** from the kubelet's cAdvisor endpoint, with **resource limits** parsed from each pod's spec — saturation alerts fire at 90% of memory limit and 75% of CPU limit
 - **Restart count** directly from the pod status
 - **Logs** via the Kubernetes API
 - **k8s badge** next to the host name in the host detail page
 
+## Cluster-wide observability
+
+In addition to the per-node container view, the agents elect a leader (via a `coordination.k8s.io/Lease` in the `insightd` namespace) to publish cluster-scoped resources to the hub. Only one agent does this work, regardless of cluster size.
+
+- **Cluster events** — Warning-level events from the apiserver land on the **Events** tab of any k8s host detail page (FailedScheduling, FailedMount, BackOff, Evicted, OOMKilled, …). Severe reasons get a red badge.
+- **Node conditions** — `Ready`, `MemoryPressure`, `DiskPressure`, `PIDPressure` are read from each node and surfaced as badges on the host detail header. Pressure conditions auto-promote to alerts (`node_pressure`); `Ready != True` promotes to `node_not_ready` (critical).
+- **PV / PVC inventory** — every PersistentVolume and PersistentVolumeClaim in the cluster appears on the **Storage** page under the **K8s PVs** tab. Phase, capacity, claim binding, storage class, and the CSI driver are all visible.
+- **Ingress auto-discovery** — every Ingress in the cluster is surfaced on the **Endpoints** page under "Discovered ingresses". Click **monitor** to start polling that ingress as an HTTP endpoint (the URL is composed from the host + first non-`/` path; `https://` if the host appears in `spec.tls[].hosts[]`, else `http://`). Click **dismiss** to hide ingresses you don't care about. Both actions are reversible.
+
+These features are k8s-only and have no Docker equivalent.
+
 ## Namespace filtering
 
-Kubernetes clusters come with many system services (`kube-system`, `kube-proxy`, `coredns`, `metrics-server`, etc.) that you may not care about monitoring. The host detail page for k8s nodes includes a **namespace filter bar** above the uptime timeline:
+Kubernetes clusters come with many system services (`kube-system`, `kube-proxy`, `coredns`, `metrics-server`, etc.) that you may not care about monitoring.
 
-- **Toggle chips** for each namespace — click to hide/show
-- Applies to both the **Uptime (7 days)** timeline and the **Containers** table
-- Hidden namespaces are **persisted per host** in your browser (localStorage)
-- All namespaces are visible by default — click to hide what you don't need
-- A **"Show all"** link appears when filtering is active, showing how many containers are hidden
+**Per-host filter bar** — the host detail page renders a chip row above the uptime timeline. Click a chip to hide that namespace; the choice is reflected in the URL as `?ns=ns1,ns2` so it survives reloads and shares cleanly. Hidden namespaces apply to both the **Uptime (7 days)** timeline and the **Containers** table, and the namespace prefix is dimmed in the container name column.
 
-For example, if you only care about your workloads in `default` and `monitoring`, click `kube-system` to hide all the system pods. The filter remembers your choice across page refreshes.
-
-The namespace prefix is also **dimmed** in the container name column so the pod/container name stands out.
+**Fleet-wide alerts filter** — the **Alerts** page has a `Namespace` facet in its rail. Tick one or more namespaces to narrow alerts to just those workloads; the URL gets `?namespaces=ns1,ns2`. The facet auto-hides on Docker-only fleets.
 
 :::note
-The namespace filter only appears on Kubernetes hosts. Docker hosts are unaffected.
+Both filters apply to Kubernetes targets only. Docker container alerts and Docker hosts are unaffected.
 :::
 
 ## What's not supported in k8s mode
@@ -216,8 +221,17 @@ The DaemonSet uses a ServiceAccount with these read-only cluster permissions:
 - `nodes` — get, list (to verify the node exists, read capacity for total memory, read `creationTimestamp` for uptime)
 - `nodes/metrics`, `nodes/stats`, `nodes/proxy` — get (to query the kubelet's `/metrics/cadvisor` and `/stats/summary` endpoints)
 - `replicasets` (apps API group) — get, list (to walk pod owner references up to the parent Deployment so containers keep a stable name across rollouts)
+- `persistentvolumes` and `persistentvolumeclaims` — get, list, watch (to populate the Storage page's K8s PVs tab)
+- `events` — get, list (Warning events on the Events tab)
+- `ingresses` (networking.k8s.io API group) — get, list (Ingress auto-discovery on the Endpoints page)
 
-The agent never modifies anything in the cluster.
+Plus a namespaced Role in `insightd` for leader election:
+
+- `leases` (coordination.k8s.io API group) — get, create, update, patch (only one agent at a time publishes cluster-scoped resources)
+
+The agent never modifies any workload resources in the cluster — the Lease is the only thing it writes.
+
+If you upgrade an existing deployment, **re-apply `agent/k8s/rbac.yaml`** so the new permissions land. Without them, cluster events and ingresses won't appear in the hub and you'll see RBAC denial logs from the leader.
 
 ## Custom kubelet URL
 
