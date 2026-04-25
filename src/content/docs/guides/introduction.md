@@ -13,11 +13,12 @@ With insightd you get:
 - **Container monitoring** across multiple hosts — status, CPU, RAM, restarts, network I/O, health checks
 - **Host system metrics** — CPU, memory, load average, uptime, disk usage, GPU, temperature
 - **HTTP endpoint monitoring** — uptime, response time, alerting
-- **Smart insights engine** — capacity-based health scoring, predictions, trends, with thumbs up/down feedback
+- **Smart insights engine** — capacity-based health scoring, predictions, trends, and a correlation-based diagnosis engine that explains *why* a container is unhealthy
 - **Explainable alerts** — every alert stores why it fired (value + threshold), with email and webhook delivery (Slack, Discord, Telegram, ntfy)
 - **Metric personalities** — baseline-aware human-friendly moods on every metric (e.g. "😌 Normal", "🔥 Way above normal")
 - **Health score breakdown** — click to see per-host factor analysis explaining your system health
 - **Container actions** — start, stop, restart, and remove containers from the UI (Docker mode)
+- **Kubernetes-aware** — cluster Warning events, node conditions as alerts, container resource-limit saturation alerts, PV / PVC inventory, and Ingress auto-discovery into the HTTP endpoint monitor
 - **Weekly digest emails** summarizing what happened
 - **Modern web dashboard** — setup wizard configures everything from the UI, no `.env` file required
 

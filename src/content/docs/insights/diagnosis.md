@@ -109,7 +109,6 @@ Every 15 minutes, the scheduler builds an implicit **service topology graph** fr
 
 - **`same_host`** — containers on the same host (weight 0.3)
 - **`same_compose`** — containers sharing a `com.docker.compose.project` label (weight 0.6)
-- **`same_group`** — containers in the same manual service group (weight 0.7)
 - **`metric_corr`** — containers whose CPU or memory rollups are Pearson-correlated over the last 48 hours (weight = correlation strength, capped at 1.0). Only computed for pairs that already share a structural edge, so this is cheap.
 
 When a container's diagnosis runs, insightd seeds **Personalized PageRank** (α=0.85, 30 iterations) at the symptom container and returns the top 5 neighbors by stationary probability — the services most likely to be causally connected to the failure.
