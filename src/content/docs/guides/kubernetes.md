@@ -215,23 +215,31 @@ If you need to perform actions or check image updates, use the Docker runtime mo
 
 ## RBAC permissions
 
-The DaemonSet uses a ServiceAccount with these read-only cluster permissions:
+The DaemonSet uses a ServiceAccount with these cluster permissions:
 
 - `pods` and `pods/log` — get, list, watch (to discover pods on the node and read logs)
 - `nodes` — get, list (to verify the node exists, read capacity for total memory, read `creationTimestamp` for uptime)
 - `nodes/metrics`, `nodes/stats`, `nodes/proxy` — get (to query the kubelet's `/metrics/cadvisor` and `/stats/summary` endpoints)
-- `replicasets` (apps API group) — get, list (to walk pod owner references up to the parent Deployment so containers keep a stable name across rollouts)
-- `persistentvolumes` and `persistentvolumeclaims` — get, list, watch (to populate the Storage page's K8s PVs tab)
-- `events` — get, list (Warning events on the Events tab)
-- `ingresses` (networking.k8s.io API group) — get, list (Ingress auto-discovery on the Endpoints page)
+- `replicasets`, `deployments`, `statefulsets`, `daemonsets` (apps API group) — get, list, watch. ReplicaSets are walked to resolve pod owner references up to the parent Deployment so containers keep a stable name across rollouts. The other three back the workload-rollout alerts (`workload_unavailable`, `workload_degraded`, `workload_rollout_stuck`) — the elected leader compares `spec.replicas` against `status.readyReplicas` and publishes the result for the hub to evaluate.
+- `persistentvolumes`, `persistentvolumeclaims`, `services` — get, list, watch. PV/PVC inventory powers the Storage page's K8s PVs tab; Service inventory backs the topology view's Ingress→Service→Workload edges (real selector-based matching).
+- `events` — get, list. The elected leader polls cluster-scoped Warning events and publishes them; they surface on the Events tab.
+- `ingresses` (networking.k8s.io API group) — get, list. The elected leader publishes Ingress inventory to the hub for auto-discovery on the Endpoints page.
 
-Plus a namespaced Role in `insightd` for leader election:
+Namespace-scoped Role in `insightd` for leader election:
 
-- `leases` (coordination.k8s.io API group) — get, create, update, patch (only one agent at a time publishes cluster-scoped resources)
+- `coordination.k8s.io/leases` — get, create, update, patch. Only one agent at a time publishes cluster-scoped resources, so the hub doesn't receive duplicates from every DaemonSet pod.
 
-The agent never modifies any workload resources in the cluster — the Lease is the only thing it writes.
+The agent reads cluster state only — the Lease is the only thing it writes, and it's confined to the agent's own namespace.
 
-If you upgrade an existing deployment, **re-apply `agent/k8s/rbac.yaml`** so the new permissions land. Without them, cluster events and ingresses won't appear in the hub and you'll see RBAC denial logs from the leader.
+### Upgrading existing deployments
+
+`agent-v0.17.0` added several rules at once: cluster Events, Ingress inventory, Service inventory, and the apps/v1 verbs that back the workload-rollout alerts. If you're upgrading from any earlier agent release, reapply the manifest after pulling the new image:
+
+```bash
+kubectl apply -f https://raw.githubusercontent.com/goldenproductions/insightd/main/agent/k8s/rbac.yaml
+```
+
+Without this, the corresponding leader-published features (cluster Events, ingress auto-discovery, topology Service edges, workload-rollout alerts) will silently fail with RBAC denial logs from the leader.
 
 ## Custom kubelet URL
 
