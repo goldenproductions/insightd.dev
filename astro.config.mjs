@@ -7,9 +7,9 @@ export default defineConfig({
     starlight({
       title: 'insightd',
       description: 'Self-hosted server awareness for homelabbers',
-      social: {
-        github: 'https://github.com/goldenproductions/insightd',
-      },
+      social: [
+        { icon: 'github', label: 'GitHub', href: 'https://github.com/goldenproductions/insightd' },
+      ],
       sidebar: [
         { label: 'Home', link: '/' },
         {
