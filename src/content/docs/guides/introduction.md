@@ -9,7 +9,7 @@ insightd is a self-hosted server awareness tool designed for homelabbers. It fil
 
 With insightd you get:
 
-- **Multi-runtime support** — monitor Docker, Kubernetes, and k3s from the same hub
+- **Multi-runtime support** — monitor Docker, Kubernetes / k3s, and Proxmox VE hypervisors from the same hub
 - **Container monitoring** across multiple hosts — status, CPU, RAM, restarts, network I/O, health checks
 - **Host system metrics** — CPU, memory, load average, uptime, disk usage, GPU, temperature
 - **HTTP endpoint monitoring** — uptime, response time, alerting
@@ -39,6 +39,8 @@ One hub, one Mosquitto broker, and one agent per monitored host. To monitor ten 
 ```
 
 On Kubernetes / k3s the agent runs as a **DaemonSet** — one pod per node, reporting to the same hub and Mosquitto broker. Each pod's containers appear in the dashboard as `{namespace}/{pod-name}/{container-name}`. See the [Kubernetes guide](/guides/kubernetes/).
+
+For **Proxmox VE** hypervisors, an agent talks to PVE's REST API from any guest VM and surfaces the LXC/QEMU guests as containers — plus ZFS pools, storage saturation, cluster quorum, and per-guest backup state. No install on the hypervisor. See the [Proxmox VE guide](/guides/proxmox/).
 
 Everything that isn't installation — email, alerts, webhooks, AI diagnosis, retention, the status page — is configured from the hub's **Settings** page after first boot. A one-time setup wizard handles the admin password, SMTP, and the command for adding your first agent.
 

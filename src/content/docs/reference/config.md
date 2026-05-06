@@ -80,8 +80,8 @@ Active alerts can also be **silenced per-instance** from the Alerts page or cont
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `INSIGHTD_RUNTIME` | `auto` | Container runtime: `auto`, `docker`, or `kubernetes` |
-| `INSIGHTD_ALLOW_ACTIONS` | `false` | Enable container start/stop/restart from UI (Docker only) |
+| `INSIGHTD_RUNTIME` | `auto` | Container runtime: `auto`, `docker`, `kubernetes`, or `proxmox` |
+| `INSIGHTD_ALLOW_ACTIONS` | `false` | Enable container start/stop/restart from UI (Docker + Proxmox VE; no-op on Kubernetes) |
 | `INSIGHTD_ALLOW_UPDATES` | `false` | Enable remote agent self-updates (Docker only) |
 
 ## Host Grouping
@@ -109,6 +109,28 @@ Cache hits via `sha256(context) + 24h TTL` avoid duplicate requests. Rate limit 
 | `NODE_NAME` | _(none)_ | Required — node name (set via downward API in DaemonSet) |
 | `NODE_IP` | _(none)_ | Node IP, used to build kubelet URL (set via downward API) |
 | `INSIGHTD_KUBELET_URL` | `https://${NODE_IP}:10250` | Override the kubelet endpoint URL |
+
+## Proxmox VE (REST API Mode)
+
+When `INSIGHTD_PVE_API_URL` is set, the Proxmox runtime talks to PVE over HTTPS instead of shelling local `pvesh`. See the [Proxmox VE setup guide](/guides/proxmox/) for the full walkthrough.
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `INSIGHTD_PVE_API_URL` | _(none)_ | `https://hostname:8006`. Presence selects REST mode. |
+| `INSIGHTD_PVE_TOKEN_ID` | _(none)_ | Token id, format `user@realm!tokenid`. |
+| `INSIGHTD_PVE_TOKEN_SECRET` | _(none)_ | Token secret PVE shows once on creation. |
+| `INSIGHTD_PVE_NODE` | _(none)_ | PVE node this agent monitors. Required in REST mode (one process per node). |
+| `INSIGHTD_PVE_VERIFY_TLS` | `false` | Default off — most PVE installs use the auto-generated self-signed cert. |
+| `INSIGHTD_PVE_CA_BUNDLE` | _(none)_ | Path to PEM CA bundle, only consulted when `INSIGHTD_PVE_VERIFY_TLS=true`. |
+
+### Identity bridge (in-guest agent → hypervisor view)
+
+Set on an **in-guest** agent (NOT on the agent talking to PVE) to cross-link the two views in the UI.
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `INSIGHTD_PROXMOX_NODE` | _(none)_ | The PVE node name this VM lives on. Must be set together with `INSIGHTD_PROXMOX_VMID`. |
+| `INSIGHTD_PROXMOX_VMID` | _(none)_ | The VMID PVE assigned to this VM. Must be set together with `INSIGHTD_PROXMOX_NODE`. |
 
 ## Container Actions
 

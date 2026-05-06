@@ -28,6 +28,8 @@ The script generates a random MQTT password, writes a compose file, and starts e
 
 For Kubernetes or k3s clusters, see the [Kubernetes guide](/guides/kubernetes/) — the agent runs as a DaemonSet and reports to the same hub. Cluster events, node conditions, persistent volumes, and ingresses are surfaced on the same UI.
 
+For **Proxmox VE** hypervisors, see the [Proxmox VE guide](/guides/proxmox/) — an agent talks to PVE over its REST API from a guest VM, with no install on the hypervisor. LXC/QEMU guests appear as containers, alongside ZFS health, storage saturation, cluster quorum, and per-guest backup tracking.
+
 ## Architecture
 
 ```
