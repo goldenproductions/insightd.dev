@@ -18,6 +18,7 @@ export default defineConfig({
             { label: 'Introduction', slug: 'guides/introduction' },
             { label: 'Quick Start', slug: 'guides/quick-start' },
             { label: 'Kubernetes / k3s', slug: 'guides/kubernetes' },
+            { label: 'Proxmox VE', slug: 'guides/proxmox' },
           ],
         },
         {
