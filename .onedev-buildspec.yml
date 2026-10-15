@@ -1,0 +1,25 @@
+---
+version: 54
+jobs:
+  # OneDev is the primary home of this repository. This job keeps GitHub in
+  # step: every update to main, and every new tag on it, is pushed there.
+  - name: mirror to github
+    steps:
+      - type: PushRepository
+        name: push to github
+        remoteUrl: https://github.com/goldenproductions/insightd.dev.git
+        userName: git
+        passwordSecret: github-push-token
+        force: false
+        condition: SUCCESSFUL
+        optional: false
+    triggers:
+      - type: BranchUpdateTrigger
+        branches: main
+        userMatch: anyone
+      - type: TagCreateTrigger
+        branches: main
+    retryCondition: never
+    maxAttempts: 3
+    retryDelay: 30
+    timeout: 600
